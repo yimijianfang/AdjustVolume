@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="js/jquery.js"></script>
+    <script src="js/main.js"></script>
+    <style>
+        body{
+            margin-top: 50px;
+        }
+        .card{
+            text-align: center;
+        }
+        .card-left{
+            width: 40%;
+        }
+        .card-right{
+            width: 40%;
+            float: right;
+        }
+        .demo1{
+            width: 50px;
+            height: 300px;
+            border: 1px solid #ccc;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+        .demo1 .per1{
+            height: 100%;
+            width: 100%;
+            background: #d3f5ae;
+        }
+        .demo2{
+            width: 50px;
+            height: 300px;
+            border: 1px solid #ccc;
+            position: relative;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+        .demo2 .per2{
+            width: 100%;
+            height: 100%;
+            background: #d3f5ae;
+            position: absolute;
+            bottom: 0;
+        }
+        .line{
+            text-align: center;
+            font-size: 60px;
+            transform: rotateZ(-25deg);
+            color: #f70b0b;
+            position: relative;
+            border-bottom: 1px solid #f00;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <div class="card card-left">
+            <div class="demo2">
+                <div class="per2"></div>
+            </div>
+            <div>普通音量调节</div>
+        </div>
+        <div class="line">VS</div>
+        <div class="card card-right">
+            <div class="demo1">
+                <div class="per1"></div>
+            </div>
+            <div>反人类的设计</div>
+        </div>
+    </div>
+<script>
+    $(function(){
+        (function(){
+            var flag = false;
+            function calculateDistance(elem, mouseX, mouseY) {
+                //return Math.floor(Math.sqrt(Math.pow(mouseX - (elem.offset().left+(elem.width()/2)), 2) + Math.pow(mouseY - (elem.offset().top+(elem.height()/2)), 2)));
+                return Math.floor((elem.offset().top - mouseY + elem.height()), 2);
+            }
+            function updateDistance(e, $target){
+                mX = e.pageX;
+                mY = e.pageY;
+                distance = calculateDistance($target, mX, mY);
+                $target.css({height:distance+'px'});
+            }
+            $(".demo2").on("mousedown", function(e) {
+                flag = true;
+            });
+            $("body").on("mouseup", function(e) {
+                flag = false;
+            });
+            $(".demo2").on("click", function(e) {
+                console.log('click')
+                updateDistance(e, $('.per2'))
+            });
+            $("body").on("mousemove", function(e) {
+                if(flag){
+                    updateDistance(e, $('.per2'))
+                }
+            });
+        })();
+        (function(){
+            var flag = false;
+            function calculateDistance(elem, mouseX, mouseY) {
+                //return Math.floor(Math.sqrt(Math.pow(mouseX - (elem.offset().left+(elem.width()/2)), 2) + Math.pow(mouseY - (elem.offset().top+(elem.height()/2)), 2)));
+                return Math.floor(mouseX - (elem.offset().left), 2);
+            }
+            function updateDistance(e, $target){
+                mX = e.pageX;
+                mY = e.pageY;
+                distance = calculateDistance($target, mX, mY);
+                $target.css({width:distance+'px'});
+            }
+            $(".demo1").on("mousedown", function(e) {
+                flag = true;
+            });
+            $("body").on("mouseup", function(e) {
+                flag = false;
+            });
+            $(".demo1").on("click", function(e) {
+                updateDistance(e, $('.per1'))
+            });
+            $("body").on("mousemove", function(e) {
+                if(flag){
+                    updateDistance(e, $('.per1'))
+                }
+            });
+        })()
+    })
+</script>
+</body>
+</html>
