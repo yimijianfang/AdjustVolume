@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style>
+        #div1{width: 50px; height: 50px; background-color: red; position: absolute; left: 100px; top: 400px}
+        #div2{width: 50px; height: 50px; background-color: blue; position: absolute; left: 500px; top: 300px}
+    </style>
+    <script src = "js/jquery.js"></script>
+    <script src = "js/parabola.js"></script>
+    <script>
+        /*
+            1、给定偏移坐标，通过抛物线运动，运动到偏移的位置。
+            2、直接通过抛物线运动从一个节点运动到另外一个节点。
+        */
+
+        window.onload = function(){
+            var oDiv1 = document.getElementById('div1');
+            var oDiv2 = document.getElementById('div2');
+
+
+            //1、设置抛物线运动的参数
+            var bool = new Parabola({
+                el: "#div1",     //运动的物体，css选择器的写法
+                targetEl: null, //目的节点
+                offset: [500, 200],
+                duration: 4000,  //动画持续事件
+                curvature: 0.001,
+                callback: function(){
+                    alert('动画执行完成了');
+                },
+                stepCallback: function(){
+                    var node = document.createElement("div");
+                    node.style.width = "5px";
+                    node.style.height = "5px";
+                    node.style.position = "absolute";
+                    node.style.left = oDiv1.offsetLeft + 'px';
+                    node.style.top = oDiv1.offsetTop + 'px';
+                    node.style.backgroundColor = 'gray';
+                    document.body.appendChild(node);
+                }
+
+            })
+
+            //2、调用对应的函数，开始抛物线运动
+
+            var oStart = document.getElementById("start");
+            var oStop = document.getElementById("stop");
+            var oOption = document.getElementById("option");
+            var oReset = document.getElementById("reset");
+            oStart.onclick = function(){
+                bool.start();
+            }
+
+            oStop.onclick = function(){
+                bool.stop();
+            }
+
+            oOption.onclick = function(){
+                bool.setOptions({
+                    offset: null,
+                    targetEl: oDiv2
+                })
+            }
+
+            oReset.onclick = function(){
+                bool.reset();
+            }
+        }
+    </script>
+</head>
+<body>
+<div id = 'div1'></div>
+<div id = 'div2'></div>
+
+<button id = 'start'>开始</button>
+<button id = 'stop'>停止</button>
+<button id = 'option'>setOption</button>
+
+<button id = 'reset'>重置</button>
+</body>
+</html>

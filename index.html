@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <link rel="stylesheet" href="css/style.css">
     <script src="js/jquery.js"></script>
     <script src="js/main.js"></script>
     <style>
@@ -54,6 +55,9 @@
             position: relative;
             border-bottom: 1px solid #f00;
         }
+        #demo2-icon, #demo1-icon{
+            font-size: 30px;
+        }
     </style>
 </head>
 <body>
@@ -62,6 +66,7 @@
             <div class="demo2">
                 <div class="per2"></div>
             </div>
+            <span id="demo2-icon" class="icon-volume-3"></span>
             <div>普通音量调节</div>
         </div>
         <div class="line">VS</div>
@@ -69,6 +74,7 @@
             <div class="demo1">
                 <div class="per1"></div>
             </div>
+            <span id="demo1-icon" class="icon-volume-3"></span>
             <div>反人类的设计</div>
         </div>
     </div>
@@ -80,10 +86,24 @@
                 //return Math.floor(Math.sqrt(Math.pow(mouseX - (elem.offset().left+(elem.width()/2)), 2) + Math.pow(mouseY - (elem.offset().top+(elem.height()/2)), 2)));
                 return Math.floor((elem.offset().top - mouseY + elem.height()), 2);
             }
+            function updateIcon(distance) {
+                var per = distance/$(".demo2").height()
+                var $el = $("#demo2-icon").removeClass();
+                if(per>=0.7){
+                    $el.addClass('icon-volume-3');
+                }else if(per>=0.3){
+                    $el.addClass('icon-volume-2');
+                }else if(per>0){
+                    $el.addClass('icon-volume-1');
+                }else{
+                    $el.addClass('icon-volume-none');
+                }
+            }
             function updateDistance(e, $target){
                 mX = e.pageX;
                 mY = e.pageY;
                 distance = calculateDistance($target, mX, mY);
+                updateIcon(distance)
                 $target.css({height:distance+'px'});
             }
             $(".demo2").on("mousedown", function(e) {
@@ -108,10 +128,24 @@
                 //return Math.floor(Math.sqrt(Math.pow(mouseX - (elem.offset().left+(elem.width()/2)), 2) + Math.pow(mouseY - (elem.offset().top+(elem.height()/2)), 2)));
                 return Math.floor(mouseX - (elem.offset().left), 2);
             }
+            function updateIcon(distance) {
+                var per = distance/$(".demo1").width()
+                var $el = $("#demo1-icon").removeClass();
+                if(per>=0.7){
+                    $el.addClass('icon-volume-3');
+                }else if(per>=0.3){
+                    $el.addClass('icon-volume-2');
+                }else if(per>0){
+                    $el.addClass('icon-volume-1');
+                }else{
+                    $el.addClass('icon-volume-none');
+                }
+            }
             function updateDistance(e, $target){
                 mX = e.pageX;
                 mY = e.pageY;
                 distance = calculateDistance($target, mX, mY);
+                updateIcon(distance)
                 $target.css({width:distance+'px'});
             }
             $(".demo1").on("mousedown", function(e) {
