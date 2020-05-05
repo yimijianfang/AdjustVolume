@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/jquery.js"></script>
+    <script src="js/main.js"></script>
+    <style>
+        body{
+            user-select: none;
+            margin-top: 50px;
+        }
+        .card{
+            text-align: center;
+        }
+        .card-left{
+            width: 40%;
+        }
+        .card-right{
+            width: 40%;
+            float: right;
+        }
+        .demo1{
+        }
+        .demo1 .volume-container{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .demo1 #demo1-icon{
+            margin-right: 10px;
+        }
+        .demo1 #number{
+            margin-left: 5px;
+        }
+        .demo1 #alert{
+            color: red;
+            display: none;
+        }
+        .demo2{
+            width: 50px;
+            height: 300px;display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid #ccc;
+            position: relative;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+        .demo2 .per2{
+            width: 100%;
+            height: 100%;
+            background: #d3f5ae;
+            position: absolute;
+            bottom: 0;
+        }
+        .line{
+            text-align: center;
+            font-size: 60px;
+            transform: rotateZ(-25deg);
+            color: #f70b0b;
+            position: relative;
+            border-bottom: 1px solid #f00;
+        }
+        #demo2-icon, #demo1-icon{
+            font-size: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <div class="card card-left">
+            <div class="demo2">
+                <div class="per2"></div>
+            </div>
+            <span id="demo2-icon" class="icon-volume-3"></span>
+            <div>普通音量调节</div>
+        </div>
+        <div class="line">VS</div>
+        <div class="card card-right">
+            <div style="word-break: break-word;">
+                参考：3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706
+            </div>
+            <div class="demo1">
+                <div class="volume-container">
+                    <span id="demo1-icon" class="icon-volume-3"></span>
+                    <span id="volume">0</span>
+                </div>
+                π:<input id="number" type="text"><span id="alert">ERROR</span>
+            </div>
+        </div>
+    </div>
+<script>
+    $(function(){
+        (function(){
+            var flag = false;
+            function calculateDistance(elem, mouseX, mouseY) {
+                //return Math.floor(Math.sqrt(Math.pow(mouseX - (elem.offset().left+(elem.width()/2)), 2) + Math.pow(mouseY - (elem.offset().top+(elem.height()/2)), 2)));
+                return Math.floor((elem.offset().top - mouseY + elem.height()), 2);
+            }
+            function updateIcon(distance) {
+                var per = distance/$(".demo2").height()
+                var $el = $("#demo2-icon").removeClass();
+                if(per>=0.7){
+                    $el.addClass('icon-volume-3');
+                }else if(per>=0.3){
+                    $el.addClass('icon-volume-2');
+                }else if(per>0){
+                    $el.addClass('icon-volume-1');
+                }else{
+                    $el.addClass('icon-volume-none');
+                }
+            }
+            function updateDistance(e, $target){
+                mX = e.pageX;
+                mY = e.pageY;
+                distance = calculateDistance($target, mX, mY);
+                updateIcon(distance)
+                $target.css({height:distance+'px'});
+            }
+            $(".demo2").on("mousedown", function(e) {
+                flag = true;
+            });
+            $("body").on("mouseup", function(e) {
+                flag = false;
+            });
+            $(".demo2").on("click", function(e) {
+                console.log('click')
+                updateDistance(e, $('.per2'))
+            });
+            $("body").on("mousemove", function(e) {
+                if(flag){
+                    updateDistance(e, $('.per2'))
+                }
+            });
+        })();
+        (function(){
+            function setVolume(volume){
+                $("#volume").text(volume);
+            }
+            function showError(){
+                $("#alert").show()
+            }
+            function hideError(){
+                $("#alert").hide()
+            }
+            const PI =
+            '3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706';
+            $("#number").on('input', function(){
+                var number = $(this).val()
+                if(PI.indexOf(number) == 0){
+                    setVolume(number.length)
+                    hideError();
+                }else{
+                    setVolume(0);
+                    showError();
+                }
+            })
+        })()
+    })
+</script>
+</body>
+</html>
