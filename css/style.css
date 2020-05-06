@@ -37,3 +37,52 @@
 .icon-volume-none:before {
   content: "\e903";
 }
+
+.card-right{
+  position: relative;
+  padding: 0 45px;
+  box-sizing: border-box;
+  background-clip: content-box !important;
+}
+.button-pre{
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.button-pre::after{
+    content: '<';
+    display: block;
+    background: red;
+    width: 40px;
+    height: 40px;
+    color: #fff;
+    font-size: 32px;
+    line-height: 35px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+.button-next {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.button-next::after{
+    content: '>';
+    display: block;
+    background: red;
+    width: 40px;
+    height: 40px;
+    color: #fff;
+    font-size: 32px;
+    line-height: 35px;
+    border-radius: 50%;
+    cursor: pointer;
+}

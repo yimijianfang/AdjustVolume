@@ -214,7 +214,7 @@
                     roatate += 180
                 }
                 function calcVloume(roatate) {
-                    if (Math.abs(roatate)<=1 && 0<defaultVolume && defaultVolume<100) {
+                    if (Math.abs(roatate)<=2 && 0<defaultVolume && defaultVolume<100) {
                         if (roatate > preRotate) {
                             defaultVolume++;
                             $("#volume").text(defaultVolume);
