@@ -184,9 +184,12 @@
             var flag = false;
             roatate = 0;
             var preRotate = 0;
+            var s = 0;
             var defaultVolume = 50;
             var centerleft = 40;
             var centertop = 16;
+            var mouseDownleft;
+            var mouseDowntop;
             function throttle(fun, wait = 100) {
                 var flag = true;
                 return function () {
@@ -206,39 +209,49 @@
                     top: Math.floor(elem.offset().top +16)
                 }
             }
-            function calculateRotate(elem, mouseX, mouseY){
-                if(mouseX > centerleft){
-                    roatate = getTanDeg((mouseY - centertop)/(mouseX - centerleft))
-                }else{
-                    roatate = getTanDeg((centertop - mouseY)/(centerleft - mouseX))
-                    roatate += 180
+            // 根据三条边的坐标获取夹角
+            function getRotate(pointA, pointB, pointC){
+                var AB = {};
+                var AC= {};
+                AB.X = (pointB.X - pointA.X);
+                AB.Y = (pointB.Y - pointA.Y);
+                AC.X = (pointC.X - pointA.X);
+                AC.Y = (pointC.Y - pointA.Y);
+                var direct = (AB.X * AC.Y) - (AB.Y * AC.X);
+                var lengthAB = Math.sqrt( Math.pow(pointA.X - pointB.X, 2) +
+                    Math.pow(pointA.Y - pointB.Y, 2)),
+                    lengthAC = Math.sqrt( Math.pow(pointA.X - pointC.X, 2) +
+                        Math.pow(pointA.Y - pointC.Y, 2)),
+                    lengthBC = Math.sqrt( Math.pow(pointB.X - pointC.X, 2) +
+                        Math.pow(pointB.Y - pointC.Y, 2));
+                var cosA = (Math.pow(lengthAB, 2) + Math.pow(lengthAC, 2) - Math.pow(lengthBC, 2)) /
+                    (2 * lengthAB * lengthAC);
+                var angleA = Math.round( Math.acos(cosA) * 180 / Math.PI );
+                if (direct > 0){
+                    s -= angleA;
+                } else {
+                    s += angleA;
                 }
-                function calcVloume(roatate) {
-                    if (Math.abs(roatate)<=2 && 0<defaultVolume && defaultVolume<100) {
-                        if (roatate > preRotate) {
-                            defaultVolume++;
-                            $("#volume").text(defaultVolume);
-                            $('.bar').css({ height: `${defaultVolume}%` })
-                        } else {
-                            defaultVolume--;
-                            $("#volume").text(defaultVolume);
-                            $('.bar').css({ height: `${defaultVolume}%` })
-                        }
-                    }
+                $('.circle').css({transform:`rotateZ(${s}deg)`})
+                var circle = Math.floor(s/360);
+                circle = defaultVolume+circle
+                if(circle>100){
+                    circle = 100;
+                    s-=360
                 }
-                throttle(calcVloume(roatate))
-                preRotate = roatate
-                $('.circle').css({transform:`rotateZ(${roatate}deg)`})
-            }
-            function getTanDeg(tan) {
-                var result = Math.atan(tan) / (Math.PI / 180);
-                result = Math.round(result);
-                return result;
+                if(circle<0){
+                    circle = 0;
+                    s+=360
+                }
+                $("#volume").text(circle);
+                $('.bar').css({ height: `${circle}%` })
             }
             $(".handler").on("mousedown", function(e) {
                 var {left, top} = getEleCenter($('.circle'))
                 centerleft = left;
                 centertop = top;
+                mouseDownleft = e.pageX;
+                mouseDowntop = e.pageY;
                 flag = true;
             });
             $("body").on("mouseup", function(e) {
@@ -248,7 +261,12 @@
                 if(flag){
                     mX = e.pageX;
                     mY = e.pageY;
-                    calculateRotate($(".circle"), mX, mY);
+                    var center = {X:centerleft, Y: centertop}
+                    var mouse = {X:mX, Y: mY}
+                    var preMouse = {X: mouseDownleft,Y:mouseDowntop};
+                    getRotate(center, mouse, preMouse)
+                    mouseDownleft = mX;
+                    mouseDowntop  = mY
                 }
             });
         })()
