@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="../js/jquery.js"></script>
+    <script src="../js/main.js"></script>
+    <script src="../js/parabola2.js"></script>
+    <style>
+        body{
+            user-select: none;
+            margin-top: 50px;
+        }
+        .card{
+            text-align: center;
+        }
+        .card-left{
+            width: 40%;
+        }
+        .card-right{
+            width: 40%;
+            float: right;
+        }
+        .demo1{
+            width: 300px;
+            height: 40px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transform-origin:50% 50%;
+            position: relative;
+        }
+        .demo1 .per1{
+            height: 20%;
+            width: 100%;
+            background: #d3f5ae;
+            position: relative;
+        }
+        .demo1 .per1 .bar{
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #ccc;
+            border-radius: 50%;
+            left: 110px;
+            top: -5px;
+        }
+        .demo1 .per1 .target{
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            left: 200px;
+        }
+        .per1 #volumnIcon{
+            position: absolute;
+            left: -42px;
+            top: -15px;
+            font-size: 40px;
+            cursor: pointer;
+        }
+        .per1 #volumnIcon:hover{
+            color: rgba(226, 64, 228, 0.3)
+        }
+        .demo2{
+            width: 50px;
+            height: 300px;
+            border: 1px solid #ccc;
+            position: relative;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+        .demo2 .per2{
+            width: 100%;
+            height: 100%;
+            background: #d3f5ae;
+            position: absolute;
+            bottom: 0;
+        }
+        .line{
+            text-align: center;
+            font-size: 60px;
+            transform: rotateZ(-25deg);
+            color: #f70b0b;
+            position: relative;
+            border-bottom: 1px solid #f00;
+        }
+        #demo2-icon, #demo1-icon{
+            font-size: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <div class="card card-left">
+            <div class="demo2">
+                <div class="per2"></div>
+            </div>
+            <span id="demo2-icon" class="icon-volume-3"></span>
+            <div>普通音量调节</div>
+        </div>
+        <div class="line">VS</div>
+        <div class="card card-right">
+            <div class="demo1">
+                <div class="per1">
+                    <span id="volumnIcon" class="icon-volume-2"></span>
+                    <div class="bar"></div>
+                    <div class="target"></div>
+                </div>
+            </div>
+            <div>音量<span id="volume">50</span></div>
+        </div>
+    </div>
+<script>
+    $(function(){
+        (function(){
+            var flag = false;
+            function calculateDistance(elem, mouseX, mouseY) {
+                //return Math.floor(Math.sqrt(Math.pow(mouseX - (elem.offset().left+(elem.width()/2)), 2) + Math.pow(mouseY - (elem.offset().top+(elem.height()/2)), 2)));
+                return Math.floor((elem.offset().top - mouseY + elem.height()), 2);
+            }
+            function updateIcon(distance) {
+                var per = distance/$(".demo2").height()
+                var $el = $("#demo2-icon").removeClass();
+                if(per>=0.7){
+                    $el.addClass('icon-volume-3');
+                }else if(per>=0.3){
+                    $el.addClass('icon-volume-2');
+                }else if(per>0){
+                    $el.addClass('icon-volume-1');
+                }else{
+                    $el.addClass('icon-volume-none');
+                }
+            }
+            function updateDistance(e, $target){
+                mX = e.pageX;
+                mY = e.pageY;
+                distance = calculateDistance($target, mX, mY);
+                updateIcon(distance)
+                $target.css({height:distance+'px'});
+            }
+            $(".demo2").on("mousedown", function(e) {
+                flag = true;
+            });
+            $("body").on("mouseup", function(e) {
+                flag = false;
+            });
+            $(".demo2").on("click", function(e) {
+                console.log('click')
+                updateDistance(e, $('.per2'))
+            });
+            $("body").on("mousemove", function(e) {
+                if(flag){
+                    updateDistance(e, $('.per2'))
+                }
+            });
+        })();
+        (function(){
+            var stime;
+            const MAXTIME = 1*1000; //最长持续1S，时间到后自动发射
+            const MAXDEGREE = 45;
+            var rotate = 0;
+            var timer = null
+            var $bar = $(".bar")
+            var perWidth = $(".per1").width()
+            var flag = false;
+            var defaultIcon = 2;
+            $("#volumnIcon").on("mousedown", function(){
+                flag = true
+                $bar.css({left:'-30px',top:'-10px'}).hide()
+                stime = +new Date();
+                let period = 10; //周期100ms
+                timer = setInterval(function () {
+                    rotate -= period/MAXTIME*MAXDEGREE;
+                    $("#volumnIcon").css({'transform':`rotateZ(${rotate}deg)`})
+                    var left = Math.abs(rotate/MAXDEGREE)*perWidth
+                    $(".target").css({'left':`${left}px`})
+                    // 喇叭动画
+                    var d = (defaultIcon++)%3+1;
+                    $(".target").css({'left':`${left}px`})
+                    $("#volumnIcon").removeClass().addClass(`icon-volume-${d}`)
+                    if(+new Date() - stime >= MAXTIME){
+                        launch()
+                    }
+                },period)
+            })
+            $("#volumnIcon").on("mouseup", launch)
+            function launch(){
+                if(flag){
+                    flag = false;
+                    $(".bar").show()
+                    $("#volumnIcon").css({'transform':`rotateZ(0deg)`}).removeClass().addClass('icon-volume-2')
+                    new Parabola(document.querySelector('.bar'), document.querySelector('.target'), {
+                        endScale: '1',
+                        curvature: '0.003',
+                        complete: function(){
+                            $("#volume").text(Math.floor(Math.abs(rotate/MAXDEGREE)*100));
+                            rotate = 0;
+                        }
+                    }).init();
+                    timer && clearInterval(timer)
+                }
+            }
+        })()
+    })
+</script>
+</body>
+</html>

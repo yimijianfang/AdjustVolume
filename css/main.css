@@ -351,13 +351,13 @@ html{
     left: -35px;
     width: 100px;
     height: 10px;
-    background: red;
+    background: #ccc;
     cursor: pointer;
 }
 
 .card7 .demo7 .container7 .bar77 {
     height: 100%;
-    background: red;
+    background: #ccc;
     margin: 0 auto;
     width: 7px;
 }

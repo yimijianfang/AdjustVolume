@@ -19,9 +19,9 @@ $(function(){
     $box = $(".card-right")
     $box.append(preButton).append(nextButton);
     $(".button-pre").click(function(){
-        location.href = location.origin + `/index${preIndex}.html`
+        location.href = location.origin + `/demo/index${preIndex}.html`
     })
     $(".button-next").click(function () {
-        location.href = location.origin + `/index${nextIndex}.html`
+        location.href = location.origin + `/demo/index${nextIndex}.html`
     })
 })

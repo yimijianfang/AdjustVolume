@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
-    <link rel="stylesheet" href="css/style.css">
-    <script src="js/jquery.js"></script>
-    <script src="js/main.js"></script>
-    <script src="js/parabola2.js"></script>
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="../js/jquery.js"></script>
+    <script src="../js/main.js"></script>
     <style>
         body{
             user-select: none;
@@ -25,16 +24,17 @@
         .demo1{
             width: 300px;
             height: 40px;
+            border: 1px solid #ccc;
             margin: 0 auto;
+            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
             transform-origin:50% 50%;
-            position: relative;
         }
         .demo1 .per1{
             height: 20%;
-            width: 100%;
+            width: 80%;
             background: #d3f5ae;
             position: relative;
         }
@@ -46,22 +46,6 @@
             border-radius: 50%;
             left: 110px;
             top: -5px;
-        }
-        .demo1 .per1 .target{
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            left: 200px;
-        }
-        .per1 #volumnIcon{
-            position: absolute;
-            left: -42px;
-            top: -15px;
-            font-size: 40px;
-            cursor: pointer;
-        }
-        .per1 #volumnIcon:hover{
-            color: rgba(226, 64, 228, 0.3)
         }
         .demo2{
             width: 50px;
@@ -104,9 +88,7 @@
         <div class="card card-right">
             <div class="demo1">
                 <div class="per1">
-                    <span id="volumnIcon" class="icon-volume-2"></span>
                     <div class="bar"></div>
-                    <div class="target"></div>
                 </div>
             </div>
             <div>音量<span id="volume">50</span></div>
@@ -157,51 +139,80 @@
             });
         })();
         (function(){
-            var stime;
-            const MAXTIME = 1*1000; //最长持续1S，时间到后自动发射
-            const MAXDEGREE = 45;
-            var rotate = 0;
-            var timer = null
-            var $bar = $(".bar")
-            var perWidth = $(".per1").width()
             var flag = false;
-            var defaultIcon = 2;
-            $("#volumnIcon").on("mousedown", function(){
-                flag = true
-                $bar.css({left:'-30px',top:'-10px'}).hide()
-                stime = +new Date();
-                let period = 10; //周期100ms
-                timer = setInterval(function () {
-                    rotate -= period/MAXTIME*MAXDEGREE;
-                    $("#volumnIcon").css({'transform':`rotateZ(${rotate}deg)`})
-                    var left = Math.abs(rotate/MAXDEGREE)*perWidth
-                    $(".target").css({'left':`${left}px`})
-                    // 喇叭动画
-                    var d = (defaultIcon++)%3+1;
-                    $(".target").css({'left':`${left}px`})
-                    $("#volumnIcon").removeClass().addClass(`icon-volume-${d}`)
-                    if(+new Date() - stime >= MAXTIME){
-                        launch()
-                    }
-                },period)
-            })
-            $("#volumnIcon").on("mouseup", launch)
-            function launch(){
-                if(flag){
-                    flag = false;
-                    $(".bar").show()
-                    $("#volumnIcon").css({'transform':`rotateZ(0deg)`}).removeClass().addClass('icon-volume-2')
-                    new Parabola(document.querySelector('.bar'), document.querySelector('.target'), {
-                        endScale: '1',
-                        curvature: '0.003',
-                        complete: function(){
-                            $("#volume").text(Math.floor(Math.abs(rotate/MAXDEGREE)*100));
-                            rotate = 0;
+            var centerleft = 0;
+            var centertop = 0
+            const G = 9.8;
+            const RUB = G*0.1;
+            var speed = 0;
+            var roatate = 0;
+            var barLeft = 110;
+            var barMaxWidth = Math.floor($(".per1").width());
+            var barWidth = Math.floor($(".bar").width()/2);
+            setInterval(function(){
+                if(roatate!=0){
+                    // 增加摩擦力
+                    var force = Math.cos(2*Math.PI/360*(90-roatate))*G;
+                    if(Math.abs(force)>RUB){
+                        console.log('go')
+                        speed += Math.floor(force-RUB);
+                    }else{
+                        if(speed<=0){
+                            speed = 0
+                        }else{
+                            speed -= Math.floor(RUB - force);
                         }
-                    }).init();
-                    timer && clearInterval(timer)
+                    }
+                }
+                barLeft += speed/100
+                if(barLeft<=-barWidth){
+                    speed = 0;
+                    barLeft = -barWidth;
+                }else if(barLeft>=barMaxWidth-barWidth){
+                    speed = 0;
+                    barLeft = barMaxWidth-barWidth;
+                }
+                $("#volume").text(Math.floor((barLeft+barWidth)/barMaxWidth*100));
+                $(".bar").css({left: barLeft+'px'})
+            },10)
+            function getEleCenter(elem){
+                return {
+                    left: Math.floor(elem.offset().left + (elem.width()/2)),
+                    top: Math.floor(elem.offset().top + (elem.height()/2))
                 }
             }
+            function calculateRotate(elem, mouseX, mouseY){
+                roatate = getTanDeg((mouseY - centertop)/(mouseX - centerleft))
+                $('.demo1').css({transform:`rotateZ(${roatate}deg)`})
+                // console.log('角度'+roatate)
+            }
+            function getTanDeg(tan) {
+                var result = Math.atan(tan) / (Math.PI / 180);
+                result = Math.round(result);
+                return result;
+            }
+            $(".demo1").on("mousedown", function(e) {
+                var {left, top} = getEleCenter($(this))
+                centerleft = left;
+                centertop = top;
+                flag = true;
+            });
+            $("body").on("mouseup", function(e) {
+                flag = false;
+            });
+            $(".demo1").on("click", function(e) {
+                //updateDistance(e, $('.per1'))
+            });
+            $("body").on("mousemove", function(e) {
+                // flag = true
+                if(flag){
+                    mX = e.pageX;
+                    mY = e.pageY;
+                    if(mX > centerleft){
+                        calculateRotate($('.demo1'), mX, mY)
+                    }
+                }
+            });
         })()
     })
 </script>
